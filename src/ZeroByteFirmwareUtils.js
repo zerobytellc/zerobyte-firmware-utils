@@ -24,23 +24,23 @@ async function zbl_retrieve_fw_index(client_name): Promise<JSON> {
  * Downloads the firmware from the given url and stores it in the applications local file cache. Returns
  * the path to the firmware bundle.
  *
- * @param fw_url {string} The URL to the firmware bundle to download
+ * @param fw_info {object} The firmware information returned by zbl_get_latest_fw_info
  * @returns {Promise<string>} The local file path to the downloaded firmware
  */
-async function zbl_download_fw(fw_url): Promise<string> {
+async function zbl_download_fw(fw_info): Promise<string> {
   return RNFetchBlob.config({
     // add this option that makes response data to be stored as a file,
     // this is much more performant.
     fileCache: true,
     appendExt: 'gbl',
   })
-      .fetch('GET', fw_url)
+      .fetch('GET', fw_info.url)
       .then((res) => {
         console.log('Downloaded to: ' + res.path());
         return RNFetchBlob.fs.stat(res.path());
       })
       .then((stats) => {
-        console.log(JSON.stringify(stats));
+        console.log('Downloaded firmware version %s to: %s', fw_info.version, stats.path);
         return `${stats.path}`;
       });
 }
@@ -72,26 +72,12 @@ async function zbl_get_latest_fw_info(client_name, model_name, current_fw_versio
   if (current_fw_version !== latest_fw_version) {
     let info = fw_index[model_name][latest_fw_version];
     infos.push(info);
+  } else {
+    console.log('%s firmware version %s is already up to date.', model_name, current_fw_version);
   }
 
   return infos;
 }
 
-/**
- * Downloads the firmware updates at the given URLs to the device's temporary storage. Returns a list of local paths
- * in the same order.
- *
- * @param urls {Array} The URLs to download
- * @returns {Promise<string[]>} Returns an array of local file paths for each downloaded url.
- */
-async function zbl_download_firmware_bundles(urls): Promise<string[]> {
-  let paths = [];
 
-  for ( let i = 0; i < urls.length; ++i ) {
-    paths.push(await zbl_download_fw(urls[i]));
-  }
-
-  return paths;
-}
-
-export { zbl_get_latest_fw_urls, zbl_retrieve_fw_index, zbl_download_fw }
+export { zbl_get_latest_fw_info, zbl_retrieve_fw_index, zbl_download_fw }

@@ -65,8 +65,8 @@ let device_token = 'model_a';       // The device identifier
 ZeroByteFW.get_latest_fw_info(client_name, device_token)
     .then((fw_entries) => {
         fw_entries.forEach((entry) => {
-            let local_path = ZeroByteFW.download_fw(entry.url);
-            console.log('Local path to download: %s', local_path);
+            let local_path = ZeroByteFW.download_fw(entry);
+            console.log('Local path to download: %s', local_path);~~~~
         });
     });
 ```
