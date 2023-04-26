@@ -2,6 +2,9 @@ import RNFetchBlob from 'rn-fetch-blob';
 import {Platform} from 'react-native';
 const Buffer = require('buffer/').Buffer;
 
+/*
+ * NOTE -- these URLs are subject to change ... DO NOT USE outside of this library.
+ */
 const url_base = 'https://static.zerobytellc.com/firmware';
 const url_index_file = 'index.json';
 
@@ -13,7 +16,6 @@ const url_index_file = 'index.json';
  */
 async function zbl_retrieve_fw_index(client_name): Promise<JSON> {
   const indexUrl = `${url_base}/${client_name}/${url_index_file}`;
-  console.log(`Retrieving firmware index for ${client_name} from: ${indexUrl}`);
   return fetch(indexUrl, {method: 'GET'})
       .then((response) => response.json());
 }
@@ -54,9 +56,9 @@ async function zbl_download_fw(fw_url): Promise<string> {
  * @param {string} client_name The name of the client, e.g.: 'hosemonster'
  * @param {string} device_name The name of the device, e.g.: 'kraken' or 'arcus'
  * @param {string} current_fw_version (optional) The current firmware version in use, e.g.: '20220101.abc123f'
- * @return {Array<string>} A list of paths to firmware updates, which must be applied in order.
+ * @return {Promise<any>>} A list of updates available for this device.
  */
-async function zbl_get_latest_fw_urls(client_name, model_name, current_fw_version = undefined): Promise<string[]> {
+async function zbl_get_latest_fw_info(client_name, model_name, current_fw_version = undefined): Promise<any> {
   let fw_index = await zbl_retrieve_fw_index(client_name);
 
   if (!fw_index.hasOwnProperty(model_name)) {
@@ -64,16 +66,15 @@ async function zbl_get_latest_fw_urls(client_name, model_name, current_fw_versio
     return [];
   }
 
-  let urls = [];
+  let infos = [];
   let latest_fw_version = fw_index[model_name].latest;
 
   if (current_fw_version !== latest_fw_version) {
-    let fw_url = fw_index[model_name][latest_fw_version].url;
-    console.log(`Required FW URL: ${fw_url}`)
-    urls.push(fw_url);
+    let info = fw_index[model_name][latest_fw_version];
+    infos.push(info);
   }
 
-  return urls;
+  return infos;
 }
 
 /**

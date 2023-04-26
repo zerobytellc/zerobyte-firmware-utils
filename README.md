@@ -2,7 +2,7 @@
 
 Firmware download and OTA update utility functions for EFR32-based IoT Devices by [Zero Byte LLC](https://zerobytellc.com).
 
-## Installation
+## Installa~~~~tion
 
 Install package from npm
 
@@ -17,13 +17,9 @@ yarn add @zerobytellc/zerobyte-firmware-utils
 ```
 
 ## Features
-
 - Version 0.0.1 has the initial API for downloading firmware updates so they do not need to be bundled in your applications.
 
 ## Usage
-
-ES6
-
 The module uses ES6 style export statement, simply use `import` to load the module.
 
 ```js
@@ -44,12 +40,16 @@ To obtain the OTA firmware update bundles to flash your BLE device over the air,
 let client_token = 'zerobytellc';   // Contact ZBL if you do not have your token
 let device_token = 'model_a';       // The device identifier
 
-ZeroByteFW.get_latest_fw_urls(client_name, device_token)
-    .then((urls) => {
-        // urls is a string[] containing zero or more URLs for 
-        // OTA update bundles. 
-        urls.forEach((url) => console.log(url));
-    })
+ZeroByteFW.get_latest_fw_info(client_name, device_token)
+    .then((fw_entries) => {
+        fw_entries.forEach((entry) => {
+            console.log(
+                'Firmware Version %s can be downloaded here: %s',
+                entry.version,
+                entry.url
+            );
+        });
+    });
 ```
 **Multi-Part Updates** \
 Occasionally, a firmware update may be packaged as a multi-part update. Incase of a multi-part update, there will be 
@@ -62,17 +62,13 @@ For convenience, a utility method is provided to download the URLs to the local 
 let client_token = 'zerobytellc';   // Contact ZBL if you do not have your token
 let device_token = 'model_a';       // The device identifier
 
-ZeroByteFW.get_latest_fw_urls(client_name, device_token)
-    .then((urls) => {
-        urls.forEach((url) => {
-            console.log('Downloading %s', url);
-            let local_path = ZeroByteFW.download_fw(url);
-            
+ZeroByteFW.get_latest_fw_info(client_name, device_token)
+    .then((fw_entries) => {
+        fw_entries.forEach((entry) => {
+            let local_path = ZeroByteFW.download_fw(entry.url);
             console.log('Local path to download: %s', local_path);
-            
-            // You can now load local_path and apply it to your device over the air.
         });
-    })
+    });
 ```
 
 ### Conditional Update Checks
@@ -84,11 +80,8 @@ let client_token = 'zerobytellc';           // Contact ZBL if you do not have yo
 let device_token = 'model_a';               // The device identifier
 let current_device_fw = '20220101.abc1234'; // Read this from the device.
 
-ZeroByteFW.get_latest_fw_urls(client_name, device_token, current_device_fw)
-    .then((urls) => {
-        urls.forEach((url) => {
-            let local_path = ZeroByteFW.download_fw(url);
-            console.log('Local path to download: %s', local_path);
-        });
-    })
+ZeroByteFW.get_latest_fw_info(client_name, device_token, current_device_fw)
+    .then((fw_entries) => {
+        // Nothing will be returned if current_device_fw is already the latest.
+    });
 ```
