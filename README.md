@@ -2,7 +2,7 @@
 
 Firmware download and OTA update utility functions for EFR32-based IoT Devices by [Zero Byte LLC](https://zerobytellc.com).
 
-## Installa~~~~tion
+## Installation
 
 Install package from npm
 
