@@ -40,7 +40,7 @@ async function zbl_download_fw(fw_info): Promise<string> {
         return RNFetchBlob.fs.stat(res.path());
       })
       .then((stats) => {
-        console.log('Downloaded firmware version %s to: %s', fw_info.version, stats.path);
+        console.log('Downloaded %s firmware version %s to: %s', fw_info.name, fw_info.version, stats.path);
         return `${stats.path}`;
       });
 }
@@ -71,6 +71,9 @@ async function zbl_get_latest_fw_info(client_name, model_name, current_fw_versio
 
   if (current_fw_version !== latest_fw_version) {
     let info = fw_index[model_name][latest_fw_version];
+
+    // Figure out how to encode the pre-req bundles and push their info here.
+
     infos.push(info);
   } else {
     console.log('%s firmware version %s is already up to date.', model_name, current_fw_version);

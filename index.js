@@ -3,5 +3,5 @@ import { zbl_get_latest_fw_info, zbl_retrieve_fw_index, zbl_download_fw }
 
 export const ZeroByteFW = {
     get_latest_fw_info: zbl_get_latest_fw_info,
-    download_fw: zbl_download_fw
+    download_fw:        zbl_download_fw
 };

@@ -34,7 +34,7 @@ In order to check for firmware updates for a device, you must know two tokens:
 If you do not know what tokens to use, contact [Tim](mailto@tim@zerobytellc.com) for more information.
 
 ### Obtaining download URLs:
-To obtain the OTA firmware update bundles to flash your BLE device over the air, use `get_latest_fw_urls` as follows:
+To obtain information about available firmware updates for your device, use the `get_latest_fw_info` method as shown here:
 
 ```js
 let client_token = 'zerobytellc';   // Contact ZBL if you do not have your token
@@ -44,7 +44,8 @@ ZeroByteFW.get_latest_fw_info(client_name, device_token)
     .then((fw_entries) => {
         fw_entries.forEach((entry) => {
             console.log(
-                'Firmware Version %s can be downloaded here: %s',
+                '%s ver %s can be downloaded here: %s',
+                entry.name,
                 entry.version,
                 entry.url
             );
@@ -53,7 +54,7 @@ ZeroByteFW.get_latest_fw_info(client_name, device_token)
 ```
 **Multi-Part Updates** \
 Occasionally, a firmware update may be packaged as a multi-part update. Incase of a multi-part update, there will be 
-multiple URLs provided. **It is critical** that multi-part updates be applied to the device in the order returned here. Do not, under any circumstance, modify the order of the updates applied to the device.
+multiple entries provided. *It is critical that multi-part updates be applied to the device in the order returned here.* 
 
 ### Downloading FW Updates
 For convenience, a utility method is provided to download the URLs to the local filesystem, `download_fw(url) : string`. The method takes the URL, downloads the target to the local filesystem, and then returns path to the downloaded file.
@@ -66,7 +67,11 @@ ZeroByteFW.get_latest_fw_info(client_name, device_token)
     .then((fw_entries) => {
         fw_entries.forEach((entry) => {
             let local_path = ZeroByteFW.download_fw(entry);
-            console.log('Local path to download: %s', local_path);~~~~
+            console.log(
+                '%s firmware version %s downloaded to: %s',
+                entry.name, 
+                entry.version, 
+                local_path);
         });
     });
 ```
