@@ -57,7 +57,7 @@ Occasionally, a firmware update may be packaged as a multi-part update. Incase o
 multiple entries provided. *It is critical that multi-part updates be applied to the device in the order returned here.* 
 
 ### Downloading FW Updates
-For convenience, a utility method is provided to download the URLs to the local filesystem, `download_fw(url) : string`. The method takes the URL, downloads the target to the local filesystem, and then returns path to the downloaded file.
+For convenience, a utility method is provided to download the URLs to the local filesystem, `download_fw(fw_info) : string`. The method takes the firmware info returned by `get_latest_fw_info`, downloads the target to the local filesystem, and then returns path to the downloaded file.
 
 ```js
 let client_token = 'zerobytellc';   // Contact ZBL if you do not have your token
