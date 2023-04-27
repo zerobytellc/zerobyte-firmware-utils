@@ -1,6 +1,8 @@
 # zerobyte-firmware-utils
 
-Firmware download and OTA update utility functions for IoT Devices designed by [Zero Byte LLC](https://zerobytellc.com).
+Firmware download and OTA update utility functions for IoT Devices designed by [Zero Byte LLC](https://zerobytellc.com). This library is released under Creative Commons Attribution No-Derivatives 4.0 International. See [LICENSE.txt](LICENSE.txt).
+
+Copyright &copy; 2023 Zero Byte LLC, All Rights Reserved
 
 ## Installation
 
