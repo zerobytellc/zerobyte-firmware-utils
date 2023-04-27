@@ -1,6 +1,6 @@
 {
-  "name": "zerobyte-firmware-utils",
-  "version": "0.0.1",
+  "name": "@zerobytellc/zerobyte-firmware-utils",
+  "version": "0.0.2",
   "description": "Utilities for working with Kraken and Arcus devices",
   "main": "index.js",
   "repository": "https://github.com/zerobytellc/zerobyte-kraken-utils.git",
@@ -12,7 +12,6 @@
   },
   "dependencies": {
     "buffer": "^6.0.3",
-    "convert-string": "^0.1.0",
     "react-native-ble-plx": "^2.0.3",
     "rn-fetch-blob": "^0.12.0"
   },
