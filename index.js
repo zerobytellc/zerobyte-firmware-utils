@@ -1,7 +1,7 @@
-import { zbl_get_latest_fw_info, zbl_retrieve_fw_index, zbl_download_fw }
-    from './src/ZeroByteFirmwareUtils'
+import { get_latest_fw_info, retrieve_fw_index, download_fw }
+    from './ZeroByteFirmwareUtils'
 
 export const ZeroByteFW = {
-    get_latest_fw_info: zbl_get_latest_fw_info,
-    download_fw:        zbl_download_fw
+    get_latest_fw_info: get_latest_fw_info,
+    download_fw:        download_fw
 };
