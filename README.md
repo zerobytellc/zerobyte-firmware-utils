@@ -34,7 +34,7 @@ In order to check for firmware updates for a device, you must know two tokens:
 - Client Name Token
 - Device Model Token
 
-If you do not know what tokens to use, contact [Tim](mailto@tim@zerobytellc.com) for more information.
+If you do not know what tokens to use, contact [Tim](mailto:tim@zerobytellc.com) for more information.
 
 ### Obtaining FW Information
 To obtain information about the latest available firmware for your device, use the `get_latest_fw_info` method as shown here. This method
