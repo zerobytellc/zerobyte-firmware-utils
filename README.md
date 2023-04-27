@@ -1,6 +1,6 @@
 # zerobyte-firmware-utils
 
-Firmware download and OTA update utility functions for EFR32-based IoT Devices by [Zero Byte LLC](https://zerobytellc.com).
+Firmware download and OTA update utility functions for IoT Devices designed by [Zero Byte LLC](https://zerobytellc.com).
 
 ## Installation
 
@@ -18,12 +18,13 @@ yarn add @zerobytellc/zerobyte-firmware-utils
 
 ## Features
 - Version 0.0.1 has the initial API for downloading firmware updates so they do not need to be bundled in your applications.
+- Version 0.0.2 has minor bug and documentation fixes.
 
 ## Usage
 The module uses ES6 style export statement, simply use `import` to load the module.
 
 ```js
-import { ZeroByteFW } from '@zerobyte-kraken-utils';
+import { ZeroByteFW } from '@zerobytellc/zerobyte-firmware-utils';
 ```
 
 ## Check for Firmware Updates
@@ -33,8 +34,11 @@ In order to check for firmware updates for a device, you must know two tokens:
 
 If you do not know what tokens to use, contact [Tim](mailto@tim@zerobytellc.com) for more information.
 
-### Obtaining download URLs:
-To obtain information about available firmware updates for your device, use the `get_latest_fw_info` method as shown here:
+### Obtaining FW Information
+To obtain information about the latest available firmware for your device, use the `get_latest_fw_info` method as shown here. This method
+returns an array of FirmwareInformation instances which describe the latest available firmware version. Occasionally, a firmware update may be packaged as a multi-part update. Incase of a multi-part update, there will be
+multiple entries provided. *It is critical that multi-part updates be applied to the device in the order returned here.*
+
 
 ```js
 let client_token = 'zerobytellc';   // Contact ZBL if you do not have your token
@@ -44,18 +48,22 @@ ZeroByteFW.get_latest_fw_info(client_name, device_token)
     .then((fw_entries) => {
         fw_entries.forEach((entry) => {
             console.log(
-                '%s ver %s can be downloaded here: %s',
+                '%s ver %s can be downloaded here: %s\n' +
+                'MD5: %s',
                 entry.name,
                 entry.version,
-                entry.url
+                entry.url,
+                entry.md5
             );
         });
     });
 ```
-**Multi-Part Updates** \
-Occasionally, a firmware update may be packaged as a multi-part update. Incase of a multi-part update, there will be 
-multiple entries provided. *It is critical that multi-part updates be applied to the device in the order returned here.* 
 
+Each entry returned has three properties:
+1. `name` the name of the firmware file
+2. `version` the version of the firmware file
+3. `md5` the md5 sum of the firmware file
+4. `url` the url to download the firmware file. *Note:* do not cache this url, it is subject to change.
 ### Downloading FW Updates
 For convenience, a utility method is provided to download the URLs to the local filesystem, `download_fw(fw_info) : string`. The method takes the firmware info returned by `get_latest_fw_info`, downloads the target to the local filesystem, and then returns path to the downloaded file.
 
@@ -72,8 +80,34 @@ ZeroByteFW.get_latest_fw_info(client_name, device_token)
                 entry.name, 
                 entry.version, 
                 local_path);
+            
+            // Load file from local_path and apply to device via OTA here.
         });
     });
+```
+
+An alternative implementation:
+```js
+let client_token = 'zerobytellc';   // Contact ZBL if you do not have your token
+let device_token = 'model_a';       // The device identifier
+let local_paths = [];
+
+// Retrieve the latest fw info:
+let fw_entries = await ZeroByteFW.get_latest_fw_info(
+    client_token,
+    device_token
+);
+
+for (let i = 0; i < fw_entries.length; ++i) {
+    // Download each firmware to a temporary path in the local filesystem
+    let entry = fw_entries[i];
+    let path  = await ZeroByteFW.download_fw(entry);
+
+    local_paths.push(path);
+}
+
+// local_paths now contains the list of downloaded firmware files 
+// to apply to the device over the air.
 ```
 
 ### Conditional Update Checks
