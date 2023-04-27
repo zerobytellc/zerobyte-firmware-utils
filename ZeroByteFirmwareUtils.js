@@ -1,3 +1,17 @@
+/*
+ * ZeroByteFirmwareUtils.js
+ *
+ * Copyright (c) 2023 Zero Byte LLC, All Rights Reserved
+ * Licensed under CC BY-ND 4.0 (https://creativecommons.org/licenses/by-nd/4.0/)
+ *
+ * Methods for checking for device firmware updates for IoT Devices designed by Zero Byte LLC.
+ *
+ * SPDX-License-Identifier: CC-BY-ND-4.0
+ * SPDX-FileCopyrightText: Copyright (c) 2023 Zero Byte LLC (hello@zerobytellc.com) All Rights Reserved
+ *
+ * @author Timothy C Sweeney-Fanelli, Zero Byte LLC (tim@zerobytellc.com)
+ */
+
 import RNFetchBlob from 'rn-fetch-blob';
 import {Platform} from 'react-native';
 const Buffer = require('buffer/').Buffer;
@@ -130,7 +144,7 @@ async function download_fw(fw_info) {
  * @param {string} client_name        The name of the client, e.g.: 'hosemonster'
  * @param {string} device_name        The name of the device, e.g.: 'kraken' or 'arcus'
  * @param {string} current_fw_version (optional) The current firmware version in use, e.g.: '20220101.abc123f'
- * @return {Promise<FirmwareInfo>}            A list of updates available for this device.
+ * @return {Promise<FirmwareInfo>}    A list of updates available for this device.
  */
 async function get_latest_fw_info(client_name, model_name, current_fw_version = undefined) {
   let fw_index = await retrieve_fw_index(client_name);
@@ -145,6 +159,7 @@ async function get_latest_fw_info(client_name, model_name, current_fw_version = 
 
   if (current_fw_version !== latest_fw_version) {
     let info = fw_index[model_name][latest_fw_version];
+    info['version'] = latest_fw_version;
 
     // Figure out how to encode the pre-req bundles and push their info here.
 
