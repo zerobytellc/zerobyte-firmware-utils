@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Global</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Global</h1>
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2></h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="_retrieve_fw_index"><span class="type-signature">(async) </span>_retrieve_fw_index<span class="signature">(client_name)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="global.html#FirmwareIndex">FirmwareIndex</a>>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Retrieves the current firmware index for the specified client. Returns the json response object.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>client_name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The name of the client, e.g.: hosemonster</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="ZeroByteFirmwareUtils.js.html">ZeroByteFirmwareUtils.js</a>, <a href="ZeroByteFirmwareUtils.js.html#line108">line 108</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Throws:</h5>
+
+        
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        Codes 1000-1999 indicate errors with the firmware index.
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">ZeroByteErrorCodes</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+
+    
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    The response describing available firmware versions for this client.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;<a href="global.html#FirmwareIndex">FirmwareIndex</a>></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="download_fw"><span class="type-signature">(async) </span>download_fw<span class="signature">(fw_info)</span><span class="type-signature"> &rarr; {Promise.&lt;string>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Downloads the firmware from the given url and stores it in the applications local file cache. Returns
+the path to the firmware bundle.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>fw_info</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The firmware information returned by get_latest_fw_info</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="ZeroByteFirmwareUtils.js.html">ZeroByteFirmwareUtils.js</a>, <a href="ZeroByteFirmwareUtils.js.html#line136">line 136</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Throws:</h5>
+
+        
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        Codes 2000-2999 indicate errors with the firmware bundles
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">ZeroByteErrorCodes</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+
+    
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    The local file path to the downloaded firmware
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;string></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="get_latest_fw_info"><span class="type-signature">(async) </span>get_latest_fw_info<span class="signature">(client_name, device_name, current_fw_version)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="global.html#FirmwareDetails">FirmwareDetails</a>>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Obtains a list of URLs for firmware updates to apply to the device. It is possible that a firmware update is
+comprised of multiple parts, in which case more than URL will be returned. Apply the firmware updates to the device
+in the order returned.
+
+If current_fw_version is specified and is the same as the currently available firmware, then an empty list is
+returned indicating no newer updates are available.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>client_name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The name of the client, e.g.: 'hosemonster'</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>device_name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The name of the device, e.g.: 'kraken' or 'arcus'</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>current_fw_version</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">(optional) The current firmware version in use, e.g.: '20220101.abc123f'</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="ZeroByteFirmwareUtils.js.html">ZeroByteFirmwareUtils.js</a>, <a href="ZeroByteFirmwareUtils.js.html#line177">line 177</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Throws:</h5>
+
+        
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        An error code if something has gone wrong. See ZeroByteErrorCodes
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">ZeroByteErrorCodes</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+
+    
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    A list of updates available for this device.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;<a href="global.html#FirmwareDetails">FirmwareDetails</a>></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+    
+
+    
+        <h3 class="subsection-title">Type Definitions</h3>
+
+        
+                
+<h4 class="name" id="DeviceFirmware">DeviceFirmware</h4>
+
+
+
+
+<div class="description">
+    Lists all the <a href="global.html#FirmwareInfo">FirmwareInfo</a> available for download, and identifies the latest version.
+</div>
+
+
+
+
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>latest</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The latest version number</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>*</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="global.html#FirmwareInfo">FirmwareInfo</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The FirmwareInfo corresponding to firmware version. There may be 0 or more of these present.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="ZeroByteFirmwareUtils.js.html">ZeroByteFirmwareUtils.js</a>, <a href="ZeroByteFirmwareUtils.js.html#line58">line 58</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>{
+ "latest": "20220101.abcdef1",
+ "20220101.abcdef1": {
+   "name": "device_1_appfw",
+   "url": "https://someweb.site/device_1_appfw_abcdef1.gbl",
+   "md5": "47ece1b4cc60e33d5b55e12101da1de0"
+ },
+ "20210615.123456a": {
+   "name": "device_1_appfw",
+   "url": "https://someweb.site/device_1_appfw_123456a.gbl",
+   "md5": "47ece1b4cc60e33d5b55e12101da1de0"
+ }
+}</code></pre>
+
+
+
+            
+                
+<h4 class="name" id="FirmwareDetails">FirmwareDetails</h4>
+
+
+
+
+
+
+
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>version</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the firmware version string</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="ZeroByteFirmwareUtils.js.html">ZeroByteFirmwareUtils.js</a>, <a href="ZeroByteFirmwareUtils.js.html#line95">line 95</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+            
+                
+<h4 class="name" id="FirmwareIndex">FirmwareIndex</h4>
+
+
+
+
+<div class="description">
+    Lists all the <a href="global.html#DeviceFirmware">DeviceFirmware</a> available for each kind of known device.
+</div>
+
+
+
+
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>*</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="global.html#DeviceFirmware">DeviceFirmware</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The DeviceFirmware corresponding to the device type `model_token`.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="ZeroByteFirmwareUtils.js.html">ZeroByteFirmwareUtils.js</a>, <a href="ZeroByteFirmwareUtils.js.html#line27">line 27</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>{
+  "device_1": {
+    "latest": "20220101.abcdef1",
+    "20220101.abcdef1": {
+      "name": "device_1_appfw",
+      "url": "https://someweb.site/device_1_appfw_abcdef1.gbl",
+      "md5": "47ece1b4cc60e33d5b55e12101da1de0"
+    },
+    "20210615.123456a": {
+      "name": "device_1_appfw",
+      "url": "https://someweb.site/device_1_appfw_123456a.gbl",
+      "md5": "47ece1b4cc60e33d5b55e12101da1de0"
+    }
+  },
+  "device_2": {
+    "latest": "20220101.abcdef1",
+    "20220101.abcdef1": {
+      "name": "device_1_appfw",
+      "url": "https://someweb.site/device_2_appfw_abcdef1.gbl",
+      "md5": "47ece1b4cc60e33d5b55e12101da1de0"
+    },
+  }
+}</code></pre>
+
+
+
+            
+                
+<h4 class="name" id="FirmwareInfo">FirmwareInfo</h4>
+
+
+
+
+<div class="description">
+    Describes a single firmware bundle available for download.
+</div>
+
+
+
+
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the firmware name</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>url</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the url to download the firmware</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>md5</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the md5 sum of the firmware</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="ZeroByteFirmwareUtils.js.html">ZeroByteFirmwareUtils.js</a>, <a href="ZeroByteFirmwareUtils.js.html#line80">line 80</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>{
+   "name": "device_1_appfw",
+   "url": "https://someweb.site/device_1_appfw_versionstring.gbl",
+   "md5": "47ece1b4cc60e33d5b55e12101da1de0"
+}</code></pre>
+
+
+
+            
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#_retrieve_fw_index">_retrieve_fw_index</a></li><li><a href="global.html#download_fw">download_fw</a></li><li><a href="global.html#get_latest_fw_info">get_latest_fw_info</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Fri Apr 28 2023 07:59:49 GMT-0400 (Eastern Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

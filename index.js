@@ -14,10 +14,12 @@
  * @author Timothy C Sweeney-Fanelli, Zero Byte LLC (tim@zerobytellc.com)
  */
 
-import { get_latest_fw_info, retrieve_fw_index, download_fw }
+import { get_latest_fw_info, download_fw }
     from './ZeroByteFirmwareUtils'
+import {ZeroByteErrorCodes} from "@zerobytellc/zerobyte-firmware-utils/ZeroByteErrorCodes";
 
 export const ZeroByteFW = {
     get_latest_fw_info: get_latest_fw_info,
     download_fw:        download_fw
 };
+export {ZeroByteErrorCodes}

@@ -126,3 +126,38 @@ ZeroByteFW.get_latest_fw_info(client_name, device_token, current_device_fw)
         // Nothing will be returned if current_device_fw is already the latest.
     });
 ```
+
+### Conditional Update Checks
+Version 0.1.0 introduces error codes for indicating various error conditions. See [ZeroByteErrorCodes.js](./ZeroByteErrorCodes.js) for
+a list of codes that may be thrown by this API.
+
+```js
+ZeroByteFW.get_latest_fw_info(client_name, device_token, current_device_fw)
+    .then((fw_entries) => {
+        // Nothing will be returned if current_device_fw is already the latest.
+    })
+    .catch((error) => {
+       switch(error) {
+           case FIRMWARE_INDEX_UNAVAILABLE:
+               console.log('Unable to retrieve the current firmware index at this time.');
+               break;
+           case FIRMWARE_INDEX_MALFORMED:
+               console.log('Unable to parse firmware index as valid JSON response.');
+               break;
+           case FIRMWARE_INDEX_DEVICE_UNKNOWN:
+               console.log('device_token is not listed in the firmware index.');
+               break;
+           case FIRMWARE_INDEX_LATEST_VERSION_UNKNOWN:
+               console.log('Unable to determine the latest firmware version from the firmware index (index is malformed).');
+               break;
+           case FIRMWARE_BUNDLE_UNAVAILABLE:
+               console.log('Unable to retrieve the firmware gbl file from the URL provided in the firmware index.');
+               break;
+           case UNKNOWN_ERROR:
+               console.log('Some other unexpected error condition occurred.');
+               break;
+               
+               
+       } 
+    });
+```
