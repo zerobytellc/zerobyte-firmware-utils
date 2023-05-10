@@ -108,7 +108,7 @@ const url_index_file = 'index.json';
 async function _retrieve_fw_index(client_name) {
     const indexUrl = `${url_base}/${client_name}/${url_index_file}`;
 
-    let response = await fetch(indexUrl, {method: 'GET'});
+    let response = await fetch(indexUrl, {method: 'GET', cache: 'no-cache'});
     if (!response.ok) {
         console.log('ZeroByteFW ERROR: Got HTTP Status Code %d retrieving firmware index', response.status);
         throw ZeroByteErrorCodes.FIRMWARE_INDEX_UNAVAILABLE;
