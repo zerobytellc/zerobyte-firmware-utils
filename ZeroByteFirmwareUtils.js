@@ -90,6 +90,7 @@ const url_index_file = 'index.json';
  * @property {string} name the firmware name
  * @property {string} url the url to download the firmware
  * @property {string} md5 the md5 sum of the firmware
+ * @property {string} apploader the name of the FirmwareInfo entry for the AppLoader required for this FW (optional)
  */
 
 /**
@@ -102,15 +103,24 @@ const url_index_file = 'index.json';
  * Retrieves the current firmware index for the specified client. Returns the json response object.
  *
  * @param {string} client_name        The name of the client, e.g.: hosemonster
+ * @param {string} channel            The release channel. Defaults to undefined which is the public channel
  * @returns {Promise<FirmwareIndex>}  The response describing available firmware versions for this client.
  * @throws {ZeroByteErrorCodes}       Codes 1000-1999 indicate errors with the firmware index.
  */
-async function _retrieve_fw_index(client_name) {
-    const indexUrl = `${url_base}/${client_name}/${url_index_file}`;
+async function _retrieve_fw_index(client_name, channel = undefined) {
+    let indexUrl = `${url_base}/${client_name}` ;
+    if ( channel === undefined ) {
+        indexUrl += `/${url_index_file}`;
+    } else {
+        indexUrl += `/${channel}/${url_index_file}`
+    }
+
+    console.log(`Firmware Index URL: ${indexUrl}`);
 
     let response = await fetch(indexUrl, {method: 'GET', cache: 'no-cache'});
     if (!response.ok) {
         console.log('ZeroByteFW ERROR: Got HTTP Status Code %d retrieving firmware index', response.status);
+        console.log(JSON.stringify(response.json()));
         throw ZeroByteErrorCodes.FIRMWARE_INDEX_UNAVAILABLE;
     }
 
@@ -169,14 +179,14 @@ async function download_fw(fw_info) {
  * returned indicating no newer updates are available.
  *
  * @param {string} client_name        The name of the client, e.g.: 'hosemonster'
- * @param {string} device_name        The name of the device, e.g.: 'kraken' or 'arcus'
+ * @param {string} model_name        The name of the device, e.g.: 'kraken' or 'arcus'
  * @param {string} current_fw_version (optional) The current firmware version in use, e.g.: '20220101.abc123f'
+ * @param {string} channel            (optional) The firmware release channel. Defaults to undefined, which indicates the public channel.
  * @return {Promise<FirmwareDetails>} A list of updates available for this device.
  * @throws {ZeroByteErrorCodes}       An error code if something has gone wrong. See {@link ZeroByteErrorCodes}
  */
-async function get_latest_fw_info(client_name, model_name, current_fw_version = undefined) {
-    let fw_index = await _retrieve_fw_index(client_name);
-
+async function get_latest_fw_info(client_name, model_name, current_fw_version = undefined, channel = undefined) {
+    let fw_index = await _retrieve_fw_index(client_name, channel);
     if (!fw_index.hasOwnProperty(model_name)) {
         console.log('ZeroByteFW ERROR: Requesting firmware update for unknown device: %s', model_name);
         throw ZeroByteErrorCodes.FIRMWARE_INDEX_DEVICE_UNKNOWN;
@@ -203,13 +213,21 @@ async function get_latest_fw_info(client_name, model_name, current_fw_version = 
         let info = model_infos[latest_fw_version];
         info['version'] = latest_fw_version;
 
-        // Figure out how to encode the pre-req bundles and push their info here.
-
         infos.push(info);
+
+        if (info.hasOwnProperty('apploader')) {
+            let apploader_version = info.apploader;
+            console.log('App firmware %s requires apploader %s. Adding to update list', latest_fw_version, apploader_version);
+
+            let apploader_info = model_infos[apploader_version];
+            infos.push(apploader_info)
+        }
+
     } else {
         console.log('%s firmware version %s is already up to date.', model_name, current_fw_version);
     }
 
+    console.log(infos)
     return infos;
 }
 
