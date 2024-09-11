@@ -24,6 +24,8 @@
   },
   "peerDependencies": {
     "react": "*",
-    "react-native": "*"
+    "react-native": "*",
+    "rn-fetch-blob": "*",
+    "react-native-ble-plx": "*"
   }
 }

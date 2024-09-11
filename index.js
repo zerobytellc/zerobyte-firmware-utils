@@ -17,9 +17,14 @@
 import { get_latest_fw_info, download_fw }
     from './ZeroByteFirmwareUtils'
 import {ZeroByteErrorCodes} from "@zerobytellc/zerobyte-firmware-utils/ZeroByteErrorCodes";
+import {startDFU} from "./ZeroByteDFU";
 
 export const ZeroByteFW = {
     get_latest_fw_info: get_latest_fw_info,
-    download_fw:        download_fw
+    download_fw:        download_fw,
+    startDFU:           startDFU
+};
+export const ZeroByteDFU = {
+    startDFU,
 };
 export {ZeroByteErrorCodes}
