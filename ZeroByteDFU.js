@@ -222,12 +222,12 @@ class DFUHandler {
         this.updateStatus('Reading firmware...');
 
         let firmwareBytes = await this.ota_read_firmware_bytes(firmwarePath);
-        let result = this.ota_perform_device_update(this.peripheralId, firmwareBytes, skipReboot, counts,);
-        if ( !result ) {
+        let result = await this.ota_perform_device_update(this.peripheralId, firmwareBytes, skipReboot, counts,)
+        if ( false === result ) {
             console.log("Unexpected error occurred ... cancelling connection to the device and attempting to retry...");
             await this.bleManager.cancelDeviceConnection(this.peripheralId);
             await this.ota_delay(REBOOT_DELAY_MS);
-            result = this.ota_perform_device_update(this.peripheralId, firmwareBytes, skipReboot, counts,);
+            result = await this.ota_perform_device_update(this.peripheralId, firmwareBytes, skipReboot, counts,);
         }
 
         return result;
@@ -269,7 +269,7 @@ class DFUHandler {
                 console.warn(error);
             }
 
-            result &= await this.ota_flash(firmwarePath, skipReboot, [firmwarePaths.length - i, firmwarePaths.length,]);
+            result &&= await this.ota_flash(firmwarePath, skipReboot, [firmwarePaths.length - i, firmwarePaths.length,]);
 
             console.log('Pausing for reboot after module installation...');
             this.updateStatus('Waiting for device to reboot...');
@@ -357,7 +357,7 @@ class DFUHandler {
 
         try {
             this.updateStatus('Connecting to device...');
-            proceed &= await this.ota_connect_and_discover();
+            proceed &&= await this.ota_connect_and_discover();
             if ( !proceed ) {
                 console.error("Failed to establish initial connection to device...");
                 return false;
@@ -369,10 +369,14 @@ class DFUHandler {
             } else {
                 this.updateStatus('Restarting to DFU...');
                 proceed = await this.ota_reboot_device_into_dfu();
+                if ( !proceed ) {
+                    console.error("Failed to reboot the device into DFU mode");
+                    return false;
+                }
 
                 // Re-establish connection after reboot ..
-                proceed &= await this.ota_connect_and_discover();
-                proceed &= await this.ota_confirm_device_in_dfu();
+                proceed &&= await this.ota_connect_and_discover();
+                proceed &&= await this.ota_confirm_device_in_dfu();
 
                 if ( !proceed ) {
                     console.error("Failed to reboot the device into DFU mode");
