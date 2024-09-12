@@ -50,6 +50,44 @@ export const OTA_NOUPDATE = -1;
 
 const REBOOT_DELAY_MS = 2500;
 
+let logTrace = (message: string, payload: any) => {
+    if ( payload )
+        console.trace(message, payload);
+    else
+        console.trace(message);
+}
+
+let logInfo = (message: string, payload: any) => {
+    if ( payload )
+        console.log(message, payload);
+    else
+        console.log(message);
+}
+
+let logWarning = (message: string, payload: any) => {
+    if ( payload )
+        console.warn(message, payload);
+    else
+        console.warn(message);
+}
+
+let logError = (message: string, payload: any) => {
+    if ( payload )
+        console.error(message, payload);
+    else
+        console.error(message);
+}
+
+export function setDFULoggers( infoLogger: (message: string, payload: any)=>void,
+                               warnLogger: (message: string, payload: any)=>void,
+                               errorLogger: (message: string, payload: any)=>void,
+                               traceLogger: (message: string, payload: any)=>void ) {
+    logInfo = infoLogger;
+    logWarning = warnLogger;
+    logError = errorLogger;
+    logTrace = traceLogger;
+}
+
 /**
  * Turn-key DFU method ... checks for new firmware, downloads the images, and flashes them onto the device.
  *
@@ -67,13 +105,13 @@ const REBOOT_DELAY_MS = 2500;
  * @param updateStatus callback invoked to pass a status message to the application for display: (string)=>void
  */
 export function startDFU(peripheralId, bleManager, deviceName, channel, currentFWVersion = undefined, isInOTA = false, onDone, onProgress, updateStatus) {
-    console.log('Starting firmware update for ' + peripheralId + " - " + deviceName);
+    logInfo('Starting firmware update for ' + peripheralId + " - " + deviceName);
 
     // We're really just wrapping DFUHandler in a convenient package here ...
     // all the work starts in ota_update_firmware.
     let dfu = new DFUHandler(peripheralId, bleManager, deviceName, channel, currentFWVersion, isInOTA, updateStatus, onProgress);
     dfu.ota_turnkey_firmware_update().then((status) => {
-        console.trace('Got status: ' + status);
+        logTrace('Got status: ' + status);
         let message;
         switch (status) {
             case OTA_FAILURE:
@@ -141,23 +179,23 @@ class DFUHandler {
         let latest_fw_infos = await get_latest_fw_info('hosemonster', this.deviceName, this.currentFWVersion, this.channel,).catch((error) => {
             switch (error) {
                 case ZeroByteErrorCodes.FIRMWARE_INDEX_UNAVAILABLE:
-                    console.error('Unable to fetch the firmware index right now...',);
+                    logError('Unable to fetch the firmware index right now...',);
                     return modules;
 
                 case ZeroByteErrorCodes.FIRMWARE_INDEX_LATEST_VERSION_UNKNOWN:
-                    console.error('Unable to determine the latest version ...',);
+                    logError('Unable to determine the latest version ...',);
                     return modules;
             }
         });
 
         if (latest_fw_infos.length > 0 && currentFW === latest_fw_infos[0].version) {
-            console.log('Device already has latest available firmware version: ' + latest_fw_infos[0].version,);
+            logInfo('Device already has latest available firmware version: ' + latest_fw_infos[0].version,);
             return modules;
         }
 
         for (let i = 0; i < latest_fw_infos.length; ++i) {
             let latest_fw_info = latest_fw_infos[i];
-            console.log('Downloading ' + this.deviceName + ' FW Version: ' + latest_fw_info.version,);
+            logInfo('Downloading ' + this.deviceName + ' FW Version: ' + latest_fw_info.version,);
             modules.push(await download_fw(latest_fw_info));
         }
 
@@ -171,15 +209,15 @@ class DFUHandler {
      * @returns {Promise<Uint8Array>}
      */
     async ota_read_firmware_bytes(filePath): Uint8Array {
-        console.log(`Getting stats for ${filePath}`);
-        console.log(`Type of filePath: ${typeof filePath}`);
+        logInfo(`Getting stats for ${filePath}`);
+        logInfo(`Type of filePath: ${typeof filePath}`);
         let stats = await RNFetchBlob.fs.stat(`${filePath}`);
 
         let firmwareSize = stats.size;
         let firmwareBuffer = new ArrayBuffer(firmwareSize);
         let firmwareBytes = new Uint8Array(firmwareBuffer);
         let done = false;
-        console.log(`Firmware bundle is ${firmwareSize} bytes.`);
+        logInfo(`Firmware bundle is ${firmwareSize} bytes.`);
 
         if (stats.size > 0) {
             RNFetchBlob.fs.readStream(filePath, 'ascii').then((stream) => {
@@ -187,7 +225,7 @@ class DFUHandler {
 
                 stream.open();
                 stream.onError((err) => {
-                    console.error(err);
+                    logError(err);
                 });
                 stream.onData((chunk) => {
                     firmwareBytes.set(chunk, bytesRead);
@@ -195,7 +233,7 @@ class DFUHandler {
                     this.onProgress(bytesRead / firmwareSize);
                 });
                 stream.onEnd(() => {
-                    console.log('Done reading firmware file from storage.');
+                    logInfo('Done reading firmware file from storage.');
                     done = true;
                 });
             });
@@ -205,7 +243,7 @@ class DFUHandler {
             }
         }
 
-        console.log('Returning firmware bytes.');
+        logInfo('Returning firmware bytes.');
         return firmwareBytes;
     }
 
@@ -218,13 +256,13 @@ class DFUHandler {
      * @returns {Promise<boolean>}
      */
     async ota_flash(firmwarePath, skipReboot?: boolean, counts?: number[],): Promise<boolean> {
-        console.log('Flashing firmware at path: ' + firmwarePath);
+        logInfo('Flashing firmware at path: ' + firmwarePath);
         this.updateStatus('Reading firmware...');
 
         let firmwareBytes = await this.ota_read_firmware_bytes(firmwarePath);
         let result = await this.ota_perform_device_update(this.peripheralId, firmwareBytes, skipReboot, counts,)
         if ( false === result ) {
-            console.log("Unexpected error occurred ... cancelling connection to the device and attempting to retry...");
+            logInfo("Unexpected error occurred ... cancelling connection to the device and attempting to retry...");
             await this.bleManager.cancelDeviceConnection(this.peripheralId);
             await this.ota_delay(REBOOT_DELAY_MS);
             result = await this.ota_perform_device_update(this.peripheralId, firmwareBytes, skipReboot, counts,);
@@ -265,13 +303,13 @@ class DFUHandler {
             try {
                 await this.bleManager.cancelDeviceConnection(this.peripheralId);
             } catch (error) {
-                console.warn('You can safely ignore this if it is a BleError: device not connected error',);
-                console.warn(error);
+                logWarning('You can safely ignore this if it is a BleError: device not connected error',);
+                logWarning(error);
             }
 
             result &&= await this.ota_flash(firmwarePath, skipReboot, [firmwarePaths.length - i, firmwarePaths.length,]);
 
-            console.log('Pausing for reboot after module installation...');
+            logInfo('Pausing for reboot after module installation...');
             this.updateStatus('Waiting for device to reboot...');
             await this.ota_delay(REBOOT_DELAY_MS);
 
@@ -290,14 +328,14 @@ class DFUHandler {
         let result = false;
 
         try {
-            console.log('Sending CTL_START (0x00)');
+            logInfo('Sending CTL_START (0x00)');
             await this.bleManager
                 .writeCharacteristicWithResponseForDevice(this.peripheralId, OTA_SERVICE, OTA_CONTROL_ATTRIBUTE, newValueBuffer.toString('base64'));
             result = true;
 
             await this.ota_one_second_delay();
         } catch (error) {
-            console.error(error);
+            logError(error);
         }
 
         return result;
@@ -313,20 +351,20 @@ class DFUHandler {
         let result = false;
 
         try {
-            console.log('Sending CTL_END (0x03)');
+            logInfo('Sending CTL_END (0x03)');
             await this.bleManager
                 .writeCharacteristicWithResponseForDevice(this.peripheralId, OTA_SERVICE, OTA_CONTROL_ATTRIBUTE, doneBuffer.toString('base64'));
             await this.ota_one_second_delay();
 
-            console.log('Sending CTL_CLOSE (0x04)');
+            logInfo('Sending CTL_CLOSE (0x04)');
             await this.bleManager
                 .writeCharacteristicWithoutResponseForDevice(this.peripheralId, OTA_SERVICE, OTA_CONTROL_ATTRIBUTE, closeBuffer.toString('base64'));
             await this.ota_one_second_delay();
 
             result = true;
         } catch (error) {
-            console.error('THERE!');
-            console.error(error);
+            logError('THERE!');
+            logError(error);
         }
 
         return result;
@@ -340,11 +378,11 @@ class DFUHandler {
             GECKO_BOOTLOADER_VERSION
         ).then((characteristic) => {
             let b = new Buffer(characteristic.value, 'base64');
-            console.log("Read Gecko Bootloader Version: " + b.toString());
+            logInfo("Read Gecko Bootloader Version: " + b.toString());
             result = true;
             return b.toString();
         }).catch((error) => {
-            console.error("Error confirming device in DFU: " + error);
+            logError("Error confirming device in DFU: " + error);
             result = false;
         });
 
@@ -359,18 +397,18 @@ class DFUHandler {
             this.updateStatus('Connecting to device...');
             proceed &&= await this.ota_connect_and_discover();
             if ( !proceed ) {
-                console.error("Failed to establish initial connection to device...");
+                logError("Failed to establish initial connection to device...");
                 return false;
             }
 
-            console.log("Initiating update sequence...");
+            logInfo("Initiating update sequence...");
             if ( skip_reboot && await this.ota_confirm_device_in_dfu() ) {
-                console.log("Confirmed device is in DFU, skipping reboot.")
+                logInfo("Confirmed device is in DFU, skipping reboot.")
             } else {
                 this.updateStatus('Restarting to DFU...');
                 proceed = await this.ota_reboot_device_into_dfu();
                 if ( !proceed ) {
-                    console.error("Failed to reboot the device into DFU mode");
+                    logError("Failed to reboot the device into DFU mode");
                     return false;
                 }
 
@@ -379,7 +417,7 @@ class DFUHandler {
                 proceed &&= await this.ota_confirm_device_in_dfu();
 
                 if ( !proceed ) {
-                    console.error("Failed to reboot the device into DFU mode");
+                    logError("Failed to reboot the device into DFU mode");
                     return false;
                 }
             }
@@ -393,7 +431,7 @@ class DFUHandler {
 
             this.onProgress(0.0);
             this.updateStatus(message);
-            console.log(message);
+            logInfo(message);
 
             // Upload the image to the device...
             totalBytesWritten = await this.ota_write_firmware_to_device_in_dfu(deviceId, Array.from(firmwareBytes));
@@ -404,7 +442,7 @@ class DFUHandler {
             // regardless of where it is initiated, triggers the device reboot.
             await this.bleManager.cancelDeviceConnection(this.peripheralId);
         } catch (error) {
-            console.error('An unexpected error occurred in ota_perform_device_update ... ' + error,);
+            logError('An unexpected error occurred in ota_perform_device_update ... ' + error,);
         }
 
         return (totalBytesWritten === firmwareBytes.length);
@@ -435,7 +473,7 @@ class DFUHandler {
             await this.bleManager.cancelDeviceConnection(this.peripheralId);
             result = true;
         } catch (error) {
-            console.error('Error occurred rebooting into DFU: ' + error);
+            logError('Error occurred rebooting into DFU: ' + error);
             await this.bleManager.cancelDeviceConnection(this.peripheralId);
         }
 
@@ -457,14 +495,14 @@ class DFUHandler {
             await this.ota_one_second_delay();
 
             if (await this.bleManager.isDeviceConnected(this.peripheralId)) {
-                console.log("Already connected to device ... ");
+                logInfo("Already connected to device ... ");
             } else {
-                console.log("Connecting to device ...");
+                logInfo("Connecting to device ...");
                 await this.bleManager.connectToDevice(this.peripheralId, {
                     requestMTU: this.REQUEST_MTU,
                 });
 
-                console.log('Attempting to discover services and characteristics.');
+                logInfo('Attempting to discover services and characteristics.');
                 await this.bleManager.discoverAllServicesAndCharacteristicsForDevice(this.peripheralId);
             }
 
@@ -476,7 +514,7 @@ class DFUHandler {
             this.BLOCK_SIZE = (dev.mtu > 8) ? (dev.mtu - 8) : 1;
             result = true;
         } catch ( error ) {
-            console.error("An error occurred during ota_connect_and_discover: " + error);
+            logError("An error occurred during ota_connect_and_discover: " + error);
         }
 
         return result;
@@ -490,15 +528,15 @@ class DFUHandler {
         if ( ! await this.ota_write_start_command_to_control() )
             return 0;
 
-        console.log("Writing firmware: " + bytes.length + " bytes.");
+        logInfo("Writing firmware: " + bytes.length + " bytes.");
         while (currentSlice.length > 0) {
             let currentData = Buffer.from(currentSlice).toString('base64');
-            // console.trace('Current slice index: ' + index + ', length: ' + Math.min(this.BLOCK_SIZE, currentSlice.length));
+            // logTrace('Current slice index: ' + index + ', length: ' + Math.min(this.BLOCK_SIZE, currentSlice.length));
 
             await this.bleManager
                 .writeCharacteristicWithoutResponseForDevice(this.peripheralId, OTA_SERVICE, OTA_DATA_ATTRIBUTE, currentData,)
                 .catch((error) => {
-                    console.error("Error uploading firmware to device: " + error);
+                    logError("Error uploading firmware to device: " + error);
                     return bytesWritten;
                 });
 
