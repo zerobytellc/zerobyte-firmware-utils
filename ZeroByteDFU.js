@@ -61,12 +61,12 @@ const APPLICATION_VERSION = osUUID('0D77CC11-4AC1-49F2-BFA9-CD96AC7A92F8');
  * @param onProgress callback invoked repeatedly throughout the DFU process: (number)=>void where number = percent complete
  * @param updateStatus callback invoked to pass a status message to the application for display: (string)=>void
  */
-export function startDFU(peripheralId, bleManager, model, channel, currentFWVersion = undefined, isInOTA = false, onDone, onProgress, updateStatus) {
-    console.log('Starting firmware update for ' + peripheralId,);
+export function startDFU(peripheralId, bleManager, deviceName, channel, currentFWVersion = undefined, isInOTA = false, onDone, onProgress, updateStatus) {
+    console.log('Starting firmware update for ' + peripheralId + " - " + deviceName);
 
     // We're really just wrapping DFUHandler in a convenient package here ...
     // all the work starts in ota_update_firmware.
-    let dfu = new DFUHandler(peripheralId, bleManager, model, channel, currentFWVersion, isInOTA, updateStatus, onProgress);
+    let dfu = new DFUHandler(peripheralId, bleManager, deviceName, channel, currentFWVersion, isInOTA, updateStatus, onProgress);
     dfu.ota_turnkey_firmware_update().then((status) => {
         console.trace('Got status: ' + status);
         let message;
@@ -124,7 +124,7 @@ class DFUHandler {
     REQUEST_MTU: number = 245;
     BLOCK_SIZE: number = this.REQUEST_MTU - 8;
     peripheralId: string;
-    model: string;
+    deviceName: string;
     version: string;
     channel: string;
     currentFWVersion: string;
@@ -142,10 +142,10 @@ class DFUHandler {
      * @param currentFWVersion The current firmware version on the device we're updating. Used to determine if the latest available is already applied. May be undefined.
      * @param isInOTA Defaults to false. Set to true if you're calling this for a peripheral that is already in DFU mode.
      */
-    constructor(peripheralId, bleManager, hardwareRevision, channel, currentFWVersion, isInOTA, updateStatus, onProgress) {
+    constructor(peripheralId, bleManager, deviceName, channel, currentFWVersion, isInOTA, updateStatus, onProgress) {
         this.peripheralId = peripheralId;
         this.bleManager = bleManager;
-        this.model = modelById(hardwareRevision).name;
+        this.deviceName = deviceName;
         this.updateStatus = updateStatus;
         this.channel = channel;
         this.currentFWVersion = currentFWVersion;
@@ -165,7 +165,7 @@ class DFUHandler {
      */
     async ota_get_firmware_modules(currentFW): Promise<string[]> {
         let modules = [];
-        let latest_fw_infos = await get_latest_fw_info('hosemonster', this.model, this.currentFWVersion, this.channel,).catch((error) => {
+        let latest_fw_infos = await get_latest_fw_info('hosemonster', this.deviceName, this.currentFWVersion, this.channel,).catch((error) => {
             switch (error) {
                 case ZeroByteErrorCodes.FIRMWARE_INDEX_UNAVAILABLE:
                     console.error('Unable to fetch the firmware index right now...',);
@@ -184,7 +184,7 @@ class DFUHandler {
 
         for (let i = 0; i < latest_fw_infos.length; ++i) {
             let latest_fw_info = latest_fw_infos[i];
-            console.log('Downloading ' + this.model.name + ' FW Version: ' + latest_fw_info.version,);
+            console.log('Downloading ' + this.deviceName + ' FW Version: ' + latest_fw_info.version,);
             modules.push(await download_fw(latest_fw_info));
         }
 
