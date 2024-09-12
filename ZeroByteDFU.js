@@ -48,6 +48,8 @@ export const OTA_SUCCESS = 1;
 export const OTA_FAILURE = 0;
 export const OTA_NOUPDATE = -1;
 
+const REBOOT_DELAY_MS = 2500;
+
 /**
  * Turn-key DFU method ... checks for new firmware, downloads the images, and flashes them onto the device.
  *
@@ -220,7 +222,15 @@ class DFUHandler {
         this.updateStatus('Reading firmware...');
 
         let firmwareBytes = await this.ota_read_firmware_bytes(firmwarePath);
-        return this.ota_perform_device_update(this.peripheralId, firmwareBytes, skipReboot, counts,);
+        let result = this.ota_perform_device_update(this.peripheralId, firmwareBytes, skipReboot, counts,);
+        if ( !result ) {
+            console.log("Unexpected error occurred ... cancelling connection to the device and attempting to retry...");
+            await this.bleManager.cancelDeviceConnection(this.peripheralId);
+            await this.ota_delay(REBOOT_DELAY_MS);
+            result = this.ota_perform_device_update(this.peripheralId, firmwareBytes, skipReboot, counts,);
+        }
+
+        return result;
     }
 
     /**
@@ -263,7 +273,7 @@ class DFUHandler {
 
             console.log('Pausing for reboot after module installation...');
             this.updateStatus('Waiting for device to reboot...');
-            await this.ota_delay(2500);
+            await this.ota_delay(REBOOT_DELAY_MS);
 
             // Device will automatically load into DFU mode after the first update of a
             // two-part update.
@@ -363,7 +373,7 @@ class DFUHandler {
                 // Re-establish connection after reboot ..
                 proceed &= await this.ota_connect_and_discover();
                 proceed &= await this.ota_confirm_device_in_dfu();
-                
+
                 if ( !proceed ) {
                     console.error("Failed to reboot the device into DFU mode");
                     return false;
@@ -379,6 +389,7 @@ class DFUHandler {
 
             this.onProgress(0.0);
             this.updateStatus(message);
+            console.log(message);
 
             // Upload the image to the device...
             totalBytesWritten = await this.ota_write_firmware_to_device_in_dfu(deviceId, Array.from(firmwareBytes));
@@ -408,11 +419,11 @@ class DFUHandler {
     async ota_delay(delay_ms: number) {
         return new Promise((resolve) => setTimeout(resolve, delay_ms));
     }
-    
+
     async ota_reboot_device_into_dfu() {
         let newValueBuffer = Buffer.alloc(1);
         newValueBuffer.writeUInt8(CTL_START);
-        
+
         let result = false;
 
         try {
@@ -429,11 +440,11 @@ class DFUHandler {
     }
 
     /**
-     * Attempts to establish a connection to the device with MTU = this.REQUEST_MTU 
-     * 
-     * Upon successful connection, we will also discover all services and characteristics to 
+     * Attempts to establish a connection to the device with MTU = this.REQUEST_MTU
+     *
+     * Upon successful connection, we will also discover all services and characteristics to
      * refresh the gatt db for this device.
-     * 
+     *
      * @returns {Promise<void>}
      */
     async ota_connect_and_discover(): Promise<boolean> {
@@ -463,7 +474,7 @@ class DFUHandler {
         } catch ( error ) {
             console.error("An error occurred during ota_connect_and_discover: " + error);
         }
-        
+
         return result;
     }
 
@@ -475,6 +486,7 @@ class DFUHandler {
         if ( ! await this.ota_write_start_command_to_control() )
             return 0;
 
+        console.log("Writing firmware: " + bytes.length + " bytes.");
         while (currentSlice.length > 0) {
             let currentData = Buffer.from(currentSlice).toString('base64');
             // console.trace('Current slice index: ' + index + ', length: ' + Math.min(this.BLOCK_SIZE, currentSlice.length));
