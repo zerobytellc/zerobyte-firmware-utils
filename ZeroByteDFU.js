@@ -2,7 +2,6 @@ import RNFetchBlob from 'rn-fetch-blob';
 import {Platform} from 'react-native';
 import {BleManager} from 'react-native-ble-plx';
 import {download_fw, get_latest_fw_info} from "./ZeroByteFirmwareUtils";
-import {Device} from "react-native-ble-plx";
 
 const Buffer = require('buffer/').Buffer;
 
@@ -57,7 +56,7 @@ export const OTA_NOUPDATE = -1;
  *
  * @param peripheralId The device.id of the device to update
  * @param bleManager The initialized BleManager instance from the application
- * @param model The device's hardware identifier ... 'A' for Kraken, 'B' for Range Extender ... don't ask why, it just is.
+ * @param deviceName The device's hardware identifier ... 'A' for Kraken, 'B' for Range Extender ... don't ask why, it just is.
  * @param channel The firmware update channel from which the index.json is retrieved (e.g. "prod", "beta", "alpha" or "dev")
  * @param currentFWVersion optional (default: undefined). The current FW version used on the device
  * @param isInOTA optional (default: false). Set to true if the device is already in DFU mode prior to the update.
@@ -93,35 +92,6 @@ export function startDFU(peripheralId, bleManager, deviceName, channel, currentF
     });
 }
 
-class Model {
-    name;
-    size;
-    hardwareRevisionId;
-
-    constructor(name, size, id) {
-        this.name = name;
-        this.size = size;
-        this.hardwareRevisionId = id;
-    }
-}
-
-const models = Object.freeze({
-    KRAKEN: new Model('kraken', 256, 'A'),
-                             ARCUS: new Model('arcus', 1024, 'B'),
-});
-
-function modelById(hardwareRevision) {
-    switch (hardwareRevision[0]) {
-        case models.KRAKEN.hardwareRevisionId:
-            return models.KRAKEN;
-        case models.ARCUS.hardwareRevisionId:
-            return models.ARCUS;
-    }
-    throw new ModelNotFoundException(
-        `No SmartMonster model found for "${hardwareRevision}".`,
-    );
-}
-
 class DFUHandler {
     static shouldCancel = false;
     bleManager: BleManager;
@@ -140,12 +110,13 @@ class DFUHandler {
      *
      * @param peripheralId The bluetooth device.id
      * @param bleManager The initialized BleManager used by the application
-     * @param model The device model name (e.g. "arcus", "kraken"...)
-     * @param updateStatus A callback with signature (string)=>void, used to send status messages to the app for display to the user...
+     * @param deviceName The device model name (e.g. "arcus", "kraken"...)
      * @param channel The update channel to use (e.g. "prod", "beta", "alpha" or "dev")
      * @param currentFWVersion The current firmware version on the device we're updating. Used to determine if the latest available is already applied. May be undefined.
      * @param isInOTA Defaults to false. Set to true if you're calling this for a peripheral that is already in DFU mode.
-     */
+     * @param updateStatus A callback with signature (string)=>void, used to send status messages to the app for display to the user...
+     * @param onProgress A callback with signature (number)=>void, used to send progress updates to the app for display to the user...
+     **/
     constructor(peripheralId, bleManager, deviceName, channel, currentFWVersion, isInOTA, updateStatus, onProgress) {
         this.peripheralId = peripheralId;
         this.bleManager = bleManager;
@@ -155,10 +126,6 @@ class DFUHandler {
         this.currentFWVersion = currentFWVersion;
         this.isInOTA = isInOTA;
         this.onProgress = onProgress;
-    }
-
-    static cancel() {
-        this.shouldCancel = true;
     }
 
     /**
@@ -345,10 +312,14 @@ class DFUHandler {
             await this.bleManager
                 .writeCharacteristicWithoutResponseForDevice(this.peripheralId, OTA_SERVICE, OTA_CONTROL_ATTRIBUTE, closeBuffer.toString('base64'));
             await this.ota_one_second_delay();
+
+            result = true;
         } catch (error) {
             console.error('THERE!');
             console.error(error);
         }
+
+        return result;
     }
 
     async ota_confirm_device_in_dfu(): Promise<boolean> {
@@ -474,7 +445,7 @@ class DFUHandler {
                 console.log("Already connected to device ... ");
             } else {
                 console.log("Connecting to device ...");
-                let dev = await this.bleManager.connectToDevice(this.peripheralId, {
+                await this.bleManager.connectToDevice(this.peripheralId, {
                     requestMTU: this.REQUEST_MTU,
                 });
 
