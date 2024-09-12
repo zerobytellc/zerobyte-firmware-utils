@@ -161,3 +161,22 @@ ZeroByteFW.get_latest_fw_info(client_name, device_token, current_device_fw)
        } 
     });
 ```
+
+## Applying Firmware Updates
+_This section is incomplete_
+
+The simplest approach is to use the turn-key startDFU method. startDFU checks or firmware updates as described above, and, if found, 
+applies them to the device. 
+
+This relies on you having already initialized a BleManager from the `react-native-ble-plx` API.
+
+```js
+import {BleManager} from 'react-native-ble-plx';
+
+const bleManager = new BleManager();
+
+ZeroByteDFU.startDFU(
+    
+)
+```
+
