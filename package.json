@@ -1,6 +1,6 @@
 {
   "name": "@zerobytellc/zerobyte-firmware-utils",
-  "version": "0.4.4",
+  "version": "1.0.0",
   "description": "Utilities for working with Kraken and Arcus devices",
   "main": "index.js",
   "repository": "https://github.com/zerobytellc/zerobyte-kraken-utils.git",
