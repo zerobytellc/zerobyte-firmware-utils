@@ -195,14 +195,17 @@ class DFUHandler {
             }
         });
 
-        if (latest_fw_infos.length > 0 && currentFW === latest_fw_infos[0].version) {
+        if (latest_fw_infos.length > 0 && this.currentFWVersion === latest_fw_infos[0].version) {
             logInfo('Device already has latest available firmware version: ' + latest_fw_infos[0].version,);
             return modules;
         }
+        this.updateStatus("Applying updates..." )
 
         for (let i = 0; i < latest_fw_infos.length; ++i) {
             let latest_fw_info = latest_fw_infos[i];
-            logInfo('Downloading ' + this.deviceName + ' FW Version: ' + latest_fw_info.version,);
+            let message ='Downloading ' + this.deviceName + ' FW Version: ' + latest_fw_info.version;
+            logInfo(message)
+            this.updateStatus(message)
             modules.push(await download_fw(latest_fw_info));
         }
 
@@ -302,6 +305,7 @@ class DFUHandler {
 
         let result = true;
         let skipReboot = this.isInOTA;
+        this.updateStatus('Obtained firmware modules...');
 
         for (let i = firmwarePaths.length - 1; result && (i >= 0); --i) {
             let firmwarePath = firmwarePaths[i];

@@ -198,7 +198,6 @@ async function get_latest_fw_info(client_name, model_name, current_fw_version = 
     }
 
     let model_infos = fw_index[model_name];
-
     let latest_fw_version;
     if (!model_infos.hasOwnProperty('latest')) {
         let versions = Object.keys(model_infos);
