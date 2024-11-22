@@ -118,8 +118,8 @@ async function _retrieve_fw_index(client_name, channel = 'prod', url_base=defaul
 
     console.log(`Firmware Index URL: ${indexUrl}`);
 
-    const p1 = new Promise((res) => fetch(indexUrl, {method: 'GET'});
-    const p2 = new Promise((res) => setTimeout(() => res({ ok: false, status: 500 }), 5000));
+    const p1 = new Promise((res) => res(fetch(indexUrl, {method: 'GET'})))
+    const p2 = new Promise((res) => setTimeout(() => res({ ok: false, status: 500 }), 10000));
     let response = await Promise.race([p1, p2]);
     if (!response.ok) {
         console.log('ZeroByteFW ERROR: Got HTTP Status Code %d retrieving firmware index', response.status);
