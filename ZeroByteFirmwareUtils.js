@@ -21,7 +21,7 @@ import {ZeroByteErrorCodes} from './ZeroByteErrorCodes';
 /*
  * NOTE -- these URLs are subject to change ... DO NOT USE outside of this library.
  */
-const url_base = 'https://static.zerobytellc.com/firmware';
+const default_url_base = 'https://static.zerobytellc.com/firmware';
 const url_index_file = 'index.json';
 
 /**
@@ -107,7 +107,7 @@ const url_index_file = 'index.json';
  * @returns {Promise<FirmwareIndex>}  The response describing available firmware versions for this client.
  * @throws {ZeroByteErrorCodes}       Codes 1000-1999 indicate errors with the firmware index.
  */
-async function _retrieve_fw_index(client_name, channel = undefined) {
+async function _retrieve_fw_index(client_name, channel = undefined, url_base=default_url_base) {
     let indexUrl = `${url_base}/${client_name}` ;
     if ( channel === undefined ) {
         indexUrl += `/${url_index_file}`;
@@ -182,11 +182,15 @@ async function download_fw(fw_info) {
  * @param {string} model_name        The name of the device, e.g.: 'kraken' or 'arcus'
  * @param {string} current_fw_version (optional) The current firmware version in use, e.g.: '20220101.abc123f'
  * @param {string} channel            (optional) The firmware release channel. Defaults to undefined, which indicates the public channel.
+ * @param {string} url_base           (optional) The base URL for firmware deployments. This module expects to find the firmware index published at "${url_base}/${client_name}/${module_name}/${channel}/index.json". Defaults to https://static.zerobytellc.com/firmware
  * @return {Promise<FirmwareDetails>} A list of updates available for this device.
  * @throws {ZeroByteErrorCodes}       An error code if something has gone wrong. See {@link ZeroByteErrorCodes}
  */
-async function get_latest_fw_info(client_name, model_name, current_fw_version = undefined, channel = undefined) {
-    let fw_index = await _retrieve_fw_index(client_name, channel);
+async function get_latest_fw_info(client_name, model_name, current_fw_version = undefined, channel = undefined, url_base = undefined) {
+    if ( url_base === undefined )
+        url_base = default_url_base;
+
+    let fw_index = await _retrieve_fw_index(client_name, channel, url_base);
     if (!fw_index.hasOwnProperty(model_name)) {
         console.log('ZeroByteFW ERROR: Requesting firmware update for unknown device: %s', model_name);
         throw ZeroByteErrorCodes.FIRMWARE_INDEX_DEVICE_UNKNOWN;
