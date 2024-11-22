@@ -11,6 +11,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@zerobytellc/zerobyte-firmware-utils": "0.6.1",
     "buffer": "^6.0.3",
     "react-native-ble-plx": "^2.0.3",
     "rn-fetch-blob": "^0.12.0"

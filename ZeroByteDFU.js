@@ -195,6 +195,11 @@ class DFUHandler {
             }
         });
 
+        if ( latest_fw_infos === undefined ) {
+            logInfo("Unable to obtain firmware information" );
+            return modules;
+        }
+
         if (latest_fw_infos.length > 0 && this.currentFWVersion === latest_fw_infos[0].version) {
             logInfo('Device already has latest available firmware version: ' + latest_fw_infos[0].version,);
             return modules;
