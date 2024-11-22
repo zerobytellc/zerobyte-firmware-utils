@@ -2,6 +2,7 @@ import RNFetchBlob from 'rn-fetch-blob';
 import {Platform} from 'react-native';
 import {BleManager} from 'react-native-ble-plx';
 import {download_fw, get_latest_fw_info} from "./ZeroByteFirmwareUtils";
+import {ZeroByteErrorCodes} from "./ZeroByteErrorCodes";
 
 const Buffer = require('buffer/').Buffer;
 
@@ -96,20 +97,22 @@ export function setDFULoggers( infoLogger: (message: string, payload: any)=>void
  *
  * @param peripheralId The device.id of the device to update
  * @param bleManager The initialized BleManager instance from the application
- * @param deviceName The device's hardware identifier ... 'A' for Kraken, 'B' for Range Extender ... don't ask why, it just is.
- * @param channel The firmware update channel from which the index.json is retrieved (e.g. "prod", "beta", "alpha" or "dev")
- * @param currentFWVersion optional (default: undefined). The current FW version used on the device
+ * @param clientName The name of the client. @see ZeroByteFW.get_latest_fw_info for details
+ * @param deviceName The device's hardware identifier ... @see ZeroByteFW.get_latest_fw_info for details
+ * @param channel The firmware update channel from which the index.json is retrieved (e.g. "prod", "beta", "alpha" or "dev"). @see ZeroByteFW.get_latest_fw_info for details
+ * @param currentFWVersion optional (default: undefined). The current FW version used on the device. @see ZeroByteFW.get_latest_fw_info for details
+ * @param url_base the url_base from which to obtain firmware indices. @see ZeroByteFW.get_latest_fw_info for details
  * @param isInOTA optional (default: false). Set to true if the device is already in DFU mode prior to the update.
  * @param onDone callback invoked after DFU has completed: (string)=>void
  * @param onProgress callback invoked repeatedly throughout the DFU process: (number)=>void where number = percent complete
  * @param updateStatus callback invoked to pass a status message to the application for display: (string)=>void
  */
-export function startDFU(peripheralId, bleManager, deviceName, channel, currentFWVersion = undefined, isInOTA = false, onDone, onProgress, updateStatus) {
+export function startDFU(peripheralId, bleManager, clientName, deviceName, channel, currentFWVersion = undefined, url_base=undefined, isInOTA = false, onDone, onProgress, updateStatus) {
     logInfo('Starting firmware update for ' + peripheralId + " - " + deviceName);
 
     // We're really just wrapping DFUHandler in a convenient package here ...
     // all the work starts in ota_update_firmware.
-    let dfu = new DFUHandler(peripheralId, bleManager, deviceName, channel, currentFWVersion, isInOTA, updateStatus, onProgress);
+    let dfu = new DFUHandler(peripheralId, bleManager, clientName, deviceName, channel, currentFWVersion, url_base, isInOTA, updateStatus, onProgress);
     dfu.ota_turnkey_firmware_update().then((status) => {
         logTrace('Got status: ' + status);
         let message;
@@ -150,20 +153,24 @@ class DFUHandler {
      *
      * @param peripheralId The bluetooth device.id
      * @param bleManager The initialized BleManager used by the application
+     * @param clientName The client name
      * @param deviceName The device model name (e.g. "arcus", "kraken"...)
      * @param channel The update channel to use (e.g. "prod", "beta", "alpha" or "dev")
      * @param currentFWVersion The current firmware version on the device we're updating. Used to determine if the latest available is already applied. May be undefined.
+     * @param url_base The url_base from which to retrieve firmware indices
      * @param isInOTA Defaults to false. Set to true if you're calling this for a peripheral that is already in DFU mode.
      * @param updateStatus A callback with signature (string)=>void, used to send status messages to the app for display to the user...
      * @param onProgress A callback with signature (number)=>void, used to send progress updates to the app for display to the user...
      **/
-    constructor(peripheralId, bleManager, deviceName, channel, currentFWVersion, isInOTA, updateStatus, onProgress) {
+    constructor(peripheralId, bleManager, clientName, deviceName, channel, currentFWVersion, url_base, isInOTA, updateStatus, onProgress) {
         this.peripheralId = peripheralId;
         this.bleManager = bleManager;
+        this.clientName = clientName;
         this.deviceName = deviceName;
         this.updateStatus = updateStatus;
         this.channel = channel;
         this.currentFWVersion = currentFWVersion;
+        this.url_base = url_base;
         this.isInOTA = isInOTA;
         this.onProgress = onProgress;
     }
@@ -174,9 +181,9 @@ class DFUHandler {
      * @param currentFW
      * @returns {Promise<[]>}
      */
-    async ota_get_firmware_modules(currentFW): Promise<string[]> {
+    async ota_get_firmware_modules(): Promise<string[]> {
         let modules = [];
-        let latest_fw_infos = await get_latest_fw_info('hosemonster', this.deviceName, this.currentFWVersion, this.channel,).catch((error) => {
+        let latest_fw_infos = await get_latest_fw_info(this.clientName, this.deviceName, this.currentFWVersion, this.channel, this.url_base).catch((error) => {
             switch (error) {
                 case ZeroByteErrorCodes.FIRMWARE_INDEX_UNAVAILABLE:
                     logError('Unable to fetch the firmware index right now...',);
@@ -287,7 +294,7 @@ class DFUHandler {
         DFUHandler.shouldCancel = false;
 
         this.updateStatus('Identifying firmware modules...');
-        let firmwarePaths = await this.ota_get_firmware_modules(this.currentFWVersion);
+        let firmwarePaths = await this.ota_get_firmware_modules();
         if (firmwarePaths.length === 0) {
             this.onProgress(100);
             return -1;
