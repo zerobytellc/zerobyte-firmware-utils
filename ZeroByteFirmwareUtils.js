@@ -22,6 +22,7 @@ import {ZeroByteErrorCodes} from './ZeroByteErrorCodes';
  * NOTE -- these URLs are subject to change ... DO NOT USE outside of this library.
  */
 const default_url_base = 'https://firmware.zerobytellc.com/firmware';
+const default_channel = 'prod';
 const url_index_file = 'index.json';
 
 /**
@@ -189,7 +190,10 @@ async function download_fw(fw_info) {
  * @return {Promise<FirmwareDetails>} A list of updates available for this device.
  * @throws {ZeroByteErrorCodes}       An error code if something has gone wrong. See {@link ZeroByteErrorCodes}
  */
-async function get_latest_fw_info(client_name, model_name, current_fw_version = undefined, channel = 'prod', url_base = undefined) {
+async function get_latest_fw_info(client_name, model_name, current_fw_version = undefined, channel = undefined, url_base = undefined) {
+    if ( channel === undefined )
+        channel = default_channel;
+
     if ( url_base === undefined )
         url_base = default_url_base;
 
